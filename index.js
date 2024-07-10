@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const cors = require('cors'); // Add cors package
 const dotenv = require('dotenv');
-
+const baseurl="https://referral-backend-9rej.onrender.com";
 dotenv.config();
 
 const app = express();
@@ -31,7 +31,7 @@ const referralSchema = new mongoose.Schema({
 const Referral = mongoose.model('Referral', referralSchema);
 
 // API endpoint to save referral data
-app.post('/api/referrals', async (req, res) => {
+app.post('${baseurl}/api/referrals', async (req, res) => {
     const { referrerName, referrerEmail, refereeName, refereeEmail } = req.body;
 
     // Validation
