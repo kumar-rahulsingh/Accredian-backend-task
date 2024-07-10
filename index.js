@@ -2,23 +2,30 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-const cors = require('cors'); // Add cors package
+const cors = require('cors');
 const dotenv = require('dotenv');
-const  baseurl="https://referral-backend-9rej.onrender.com";
-
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Define base URL based on environment
+let baseurl;
+if (process.env.NODE_ENV === 'production') {
+    baseurl = 'https://referral-backend-9rej.onrender.com';
+} else {
+    baseurl = 'http://localhost:3000'; // Default to localhost for development
+}
+
 // Middleware
 app.use(bodyParser.json());
-app.use(cors()); // Use cors middleware
+app.use(cors());
 
 // Connect to MongoDB
 mongoose.connect('mongodb://0.0.0.0:27017/referralDB', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected...'))
-    .catch(err => console.log(err));
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // Define Referral Schema
 const referralSchema = new mongoose.Schema({
@@ -32,7 +39,7 @@ const referralSchema = new mongoose.Schema({
 const Referral = mongoose.model('Referral', referralSchema);
 
 // API endpoint to save referral data
-app.post('${baseurl}/api/referrals', async (req, res) => {
+app.post('/api/referrals', async (req, res) => {
     const { referrerName, referrerEmail, refereeName, refereeEmail } = req.body;
 
     // Validation
@@ -45,10 +52,11 @@ app.post('${baseurl}/api/referrals', async (req, res) => {
         await newReferral.save();
 
         // Send email notification
-        sendReferralEmail(referrerName, referrerEmail, refereeName, refereeEmail);
+        await sendReferralEmail(referrerName, referrerEmail, refereeName, refereeEmail);
 
         res.status(201).json(newReferral);
     } catch (error) {
+        console.error('Error saving referral:', error);
         res.status(500).json({ error: 'Something went wrong' });
     }
 });
@@ -79,5 +87,6 @@ const sendReferralEmail = async (referrerName, referrerEmail, refereeName, refer
 };
 
 app.listen(PORT, () => {
-    console.log(`server is running on ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Base URL: ${baseurl}`);
 });
