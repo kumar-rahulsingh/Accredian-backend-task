@@ -4,12 +4,11 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const cors = require('cors'); // Add cors package
 const dotenv = require('dotenv');
-const baseurl="https://referral-backend-9rej.onrender.com";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const url=process.env.url;
 // Middleware
 app.use(bodyParser.json());
 app.use(cors()); // Use cors middleware
@@ -31,7 +30,7 @@ const referralSchema = new mongoose.Schema({
 const Referral = mongoose.model('Referral', referralSchema);
 
 // API endpoint to save referral data
-app.post('${baseurl}/api/referrals', async (req, res) => {
+app.post('/api/referrals', async (req, res) => {
     const { referrerName, referrerEmail, refereeName, refereeEmail } = req.body;
 
     // Validation
@@ -78,5 +77,5 @@ const sendReferralEmail = async (referrerName, referrerEmail, refereeName, refer
 };
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`${url}`);
 });
